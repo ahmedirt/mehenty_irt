@@ -1,43 +1,50 @@
-#membre de l'equipe: 23044, 23104, 23243
-#le chef de l'equipe: 23243 
-#git@github.com:ahmedirt/mehenty_irt.git
-#Compte Rendu
-1-a) Description du premier besoin fonctionnel: gestion de demande de service
-Fonctionnalité: soumission de demande de service
-Description Permettre aux clients de soumettre des demandes de service via
-l’application mobile
-Entrées Données de la demande de service
-Source Interaction directe avec l’application mobile
-Sorties Notification de réception de la demande pour le client
-Destination Base de données des services de demandes
-Actions Remplir le formulaire de demande
-Pré-condition L’utilisateur doit être connecté à son compte sur l’application
-mobile.
-Post-condition La demande est enregistrée dans le système et transmise aux
-techniciens disponibles pour traitement.
-Effet de bord Enregistrement de la demande dans le système
-b) Deuxième besoin fonctionnel: Attribution des services aux techniciens
-Fonctionnalité: Attribution des services aux techniciens
-Description Assigner automatiquement les demandes
-de service aux techniciens disponibles en
-fonction de leur disponibilité et de leur
-emplacement
-Entrées Nouvelle demande de service, liste des
-techniciens disponibles
-Source Automatique suite à la soumission d’une
-demande par le client
-Sorties Notification de la demande de service pour
-le technicien attribué
-Destination Affectation de la demande de service au
-technicien attribué
-Actions Identifier les techniciens adéquats, attribuer
-la demande de service
-Pré-condition Des demandes de service ont été soumises
-par les clients et des techniciens sont
-disponibles dans le système
-Post-condition La demande de service est attribuée à un
-technicien et les informations pertinentes
-sont mises à sa disposition pour effectuer
-l’intervention
-Effet de bord Mise à jour de l’état de la demande dans le
-système
+
+# Application Mehenty IRT 2
+## Member du groupe :
+##### Ahmed Abd Dayme AhmedBouha  23243
+##### Moussa Ba 23044
+##### Aichetou Mouhssen 23104
+#### Chef du groupe : Ahmed AhmedBouha 23243
+___
+##### Liens projet GitHub: [Mehenty_Liens](git@github.com:ahmedirtmehenty_irt.git)
+
+____
+## Besoins fonctionnels
+1.  Recherche de Services
+    * Description : Permettre aux clients de rechercher des techniciens disponibles en fonction
+    de leurs besoins spécifiques.
+    *  Entrée : Critères de recherche tels que la localisation, la spécialité du service, les
+    disponibilités,
+    *  Action : Les clients saisissent leurs critères de recherche dans l'interface de recherche de
+    l'application.  
+    *   Précondition : Les clients doivent être connectés à leur compte
+    *   Post-condition : Une liste de techniciens correspondant aux critères de recherche est
+    affichée.
+    *   Effet de bord : Augmentation de l'engagement des utilisateurs grâce à une meilleure
+    expérience de recherche
+
+
+2.   Connexion des Utilisateurs
+       * Description : Permettre aux utilisateurs de se connecter à l'application MEHENTY en
+        utilisant leurs identifiants.
+       * Entrée : Nom d'utilisateur (ou adresse e-mail) et mot de passe.
+       * Source : Utilisateurs de l'application (clients et techniciens).
+       * Action : Les utilisateurs saisissent leurs identifiants dans les champs de connexion
+        prévus à cet effet.
+       * Précondition : Les utilisateurs doivent être enregistrés sur l'application avec un compte
+        valide.
+       * Post-condition : L'accès aux fonctionnalités de l'application est accordé aux utilisateurs
+        authentifiés.
+       * Effet de bord : Amélioration de la sécurité en empêchant l'accès non autorisé aux comptes utilisateurs, ce qui renforce la confiance des utilisateurs dans l'application.  
+3. Connexion des Utilisateurs
+     * Description : Permettre aux utilisateurs de se connecter à l'application MEHENTY en
+    utilisant leurs identifiants.
+     * Entrée : Nom d'utilisateur (ou adresse e-mail) et mot de passe.
+     * Source : Utilisateurs de l'application (clients et techniciens).
+     * Action : Les utilisateurs saisissent leurs identifiants dans les champs de connexion
+    prévus à cet effet.
+   *   Précondition : Les utilisateurs doivent être enregistrés sur l'application avec un compte
+    valide.
+   *   Post-condition : L'accès aux fonctionnalités de l'application est accordé aux utilisateurs
+    authentifiés.
+     * Effet de bord : Amélioration de la sécurité en empêchant        l'accès non autorisé aux comptes utilisateurs, ce qui renforce la confiance des utilisateurs dans l'application.
