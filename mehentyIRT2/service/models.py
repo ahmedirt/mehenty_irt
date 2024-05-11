@@ -34,7 +34,7 @@ class Technician(models.Model):
 
 
 class Request(models.Model):
-    cat=(('plumbing', 'Plumbing'),('electricity', 'Electricity'),('painting', 'Painting'),('carpentry', 'Carpentry'))
+    cat=(('Plumbing', 'Plumbing'),('Electricity', 'Electricity'),('Painting', 'Painting'),('Carpentry', 'Carpentry'))
     category=models.CharField(max_length=50,choices=cat)
 
     service_no=models.PositiveIntegerField(null=False)
