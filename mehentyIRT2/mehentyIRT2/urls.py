@@ -18,7 +18,7 @@ urlpatterns = [
    
     path('adminlogin', LoginView.as_view(template_name='service/adminlogin.html'),name='adminlogin'),
 
-
+   
 
     path('admin-dashboard', views.admin_dashboard_view,name='admin-dashboard'),
 
