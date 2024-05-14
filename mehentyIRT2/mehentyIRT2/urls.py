@@ -27,8 +27,7 @@ urlpatterns = [
     path('delete-customer/<int:pk>', views.delete_customer_view,name='delete-customer'),
     path('update-customer/<int:pk>', views.update_customer_view,name='update-customer'),
     path('admin-add-customer', views.admin_add_customer_view,name='admin-add-customer'),
-    path('admin-view-customer-enquiry', views.admin_view_customer_enquiry_view,name='admin-view-customer-enquiry'),
-    path('admin-view-customer-invoice', views.admin_view_customer_invoice_view,name='admin-view-customer-invoice'),
+    
 
 
     path('admin-request', views.admin_request_view,name='admin-request'),
@@ -36,11 +35,7 @@ urlpatterns = [
     path('change-status/<int:pk>', views.change_status_view,name='change-status'),
     path('admin-delete-request/<int:pk>', views.admin_delete_request_view,name='admin-delete-request'),
     path('admin-add-request',views.admin_add_request_view,name='admin-add-request'),
-    path('admin-approve-request',views.admin_approve_request_view,name='admin-approve-request'),
-    path('approve-request/<int:pk>', views.approve_request_view,name='approve-request'),
-    
-    path('admin-view-service-cost',views.admin_view_service_cost_view,name='admin-view-service-cost'),
-    path('update-cost/<int:pk>', views.update_cost_view,name='update-cost'),
+   
 
     path('admin-Technician', views.admin_Technician_view,name='admin-Technician'),
     path('admin-view-Technician',views.admin_view_Technician_view,name='admin-view-Technician'),
@@ -50,30 +45,19 @@ urlpatterns = [
     path('admin-approve-Technician',views.admin_approve_Technician_view,name='admin-approve-Technician'),
     path('approve-Technician/<int:pk>', views.approve_Technician_view,name='approve-Technician'),
     path('delete-Technician/<int:pk>', views.delete_Technician_view,name='delete-Technician'),
-    path('admin-view-Technician-salary',views.admin_view_Technician_salary_view,name='admin-view-Technician-salary'),
-    path('update-salary/<int:pk>', views.update_salary_view,name='update-salary'),
-
-    path('admin-Technician-attendance', views.admin_Technician_attendance_view,name='admin-Technician-attendance'),
-    path('admin-take-attendance', views.admin_take_attendance_view,name='admin-take-attendance'),
-    path('admin-view-attendance', views.admin_view_attendance_view,name='admin-view-attendance'),
-    path('admin-feedback', views.admin_feedback_view,name='admin-feedback'),
-
-    path('admin-report', views.admin_report_view,name='admin-report'),
-
+   
     
+  
     path('afterlogin', views.afterlogin_view,name='afterlogin'),
     path('logout', LogoutView.as_view(template_name='service/index.html'),name='logout'),
 
     path('aboutus', views.aboutus_view),
     path('contactus', views.contactus_view),
-<<<<<<< HEAD
+
 
     path('customersignup', views.customer_signup_view,name='customersignup'),
     path('customerlogin', LoginView.as_view(template_name='service/customerlogin.html'),name='customerlogin'),
-=======
     path('Techniciansignup', views.Technician_signup_view,name='Techniciansignup'),
-    path('Technicianlogin', LoginView.as_view(template_name='service/Technicianlogin.html'),name='Technicianlogin'),
-    
->>>>>>> 220b8900913ff14a4a966a63b297c82c2242f3d1
+    path('Technicianlogin', LoginView.as_view(template_name='service/Technicianlogin.html'),name='Technicianlogin'),   
 ]
 
