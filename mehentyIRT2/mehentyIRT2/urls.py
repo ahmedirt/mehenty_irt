@@ -18,7 +18,7 @@ urlpatterns = [
    
     path('adminlogin', LoginView.as_view(template_name='service/adminlogin.html'),name='adminlogin'),
 
-
+   
 
     path('admin-dashboard', views.admin_dashboard_view,name='admin-dashboard'),
 
@@ -66,7 +66,14 @@ urlpatterns = [
 
     path('aboutus', views.aboutus_view),
     path('contactus', views.contactus_view),
+<<<<<<< HEAD
 
     path('customersignup', views.customer_signup_view,name='customersignup'),
     path('customerlogin', LoginView.as_view(template_name='service/customerlogin.html'),name='customerlogin'),
+=======
+    path('Techniciansignup', views.Technician_signup_view,name='Techniciansignup'),
+    path('Technicianlogin', LoginView.as_view(template_name='service/Technicianlogin.html'),name='Technicianlogin'),
+    
+>>>>>>> 220b8900913ff14a4a966a63b297c82c2242f3d1
 ]
+
