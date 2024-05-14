@@ -95,7 +95,7 @@ def afterlogin_view(request):
 
 
 #============================================================================================
-# ADMIN RELATED views start
+# ADMIN RELATED views start by | ahmedabddaymeahmedbouha | 23243 |
 #============================================================================================
 
 @login_required(login_url='adminlogin')
@@ -479,7 +479,7 @@ def admin_feedback_view(request):
     return render(request,'service/admin_feedback.html',{'feedback':feedback})
 
 #============================================================================================
-# ADMIN RELATED views END
+# ADMIN RELATED views END by | ahmedabddaymeahmedbouha | 23243 |
 #============================================================================================
 
 
