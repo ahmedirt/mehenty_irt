@@ -66,4 +66,7 @@ urlpatterns = [
 
     path('aboutus', views.aboutus_view),
     path('contactus', views.contactus_view),
+
+    path('customersignup', views.customer_signup_view,name='customersignup'),
+    path('customerlogin', LoginView.as_view(template_name='service/customerlogin.html'),name='customerlogin'),
 ]
