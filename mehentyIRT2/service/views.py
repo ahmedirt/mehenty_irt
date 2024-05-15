@@ -51,30 +51,40 @@ from .forms import ExportForm
 from .models import Customer, Technician
 import csv
 from django.http import HttpResponse
+from django.shortcuts import render
+from .forms import ExportForm
+from .models import Customer, Technician
+import csv
+from django.http import HttpResponse
 
 def export_to_csv(request):
-    form = ExportForm(request.POST or None)
-    if form.is_valid():
-        model_name = form.cleaned_data['model']
-        if model_name == 'Customer':
-            queryset = Customer.objects.all()
-            filename = 'customers.csv'
-            fieldnames = ['user', 'address', 'mobile']
-        elif model_name == 'Technician':
-            queryset = Technician.objects.all()
-            filename = 'technicians.csv'
-            fieldnames = ['user', 'address', 'mobile', 'skill', 'salary', 'status']
+    # Récupérer les données des deux modèles
+    customers = Customer.objects.all()
+    technicians = Technician.objects.all()
 
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        
-        writer = csv.DictWriter(response, fieldnames=fieldnames)
-        writer.writeheader()
-        for obj in queryset:
-            row = {field: getattr(obj, field) for field in fieldnames}
-            writer.writerow(row)
-        
-        return response
+    # Fusionner les données dans une liste
+    all_data = list(customers) + list(technicians)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="export.csv"'
+
+    # Définir les noms de colonnes pour les deux modèles
+    fieldnames = ['Name', 'Address', 'Mobile', 'Skill', 'Salary', 'Status']
+
+    writer = csv.DictWriter(response, fieldnames=fieldnames)
+    writer.writeheader()
+
+    # Écrire les données dans le fichier CSV
+    for obj in all_data:
+        if isinstance(obj, Customer):
+            row = {'Name': obj.get_name, 'Address': obj.address, 'Mobile': obj.mobile,
+                   'Skill': '', 'Salary': '', 'Status': ''}
+        elif isinstance(obj, Technician):
+            row = {'Name': obj.get_name, 'Address': obj.address, 'Mobile': obj.mobile,
+                   'Skill': obj.skill, 'Salary': obj.salary, 'Status': obj.status}
+        writer.writerow(row)
+
+    return response
 
     context = {'form': form}
     return render(request, 'service/export.html', context)
