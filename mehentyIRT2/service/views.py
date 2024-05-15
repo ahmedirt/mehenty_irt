@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect,reverse
 from . import forms,models
 from django.db.models import Sum
 from django.contrib.auth.models import Group
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.conf import settings
 from django.db.models import Q
@@ -12,23 +12,26 @@ from django.db.models import Q
 import csv
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import HttpResponse
+from django.contrib.auth.models import User
 from .models import Customer
 from .forms import CSVUploadForm
 
-# service/views.py
+from .models import Customer,Technician
+from .forms import CSVUploadForm
 import csv
+from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import Customer
 from .forms import CSVUploadForm
+import requests
 
 def import_customers(request):
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            csv_file = request.FILES['file']
+            csv_file = request.FILES['csv_file']
             decoded_file = csv_file.read().decode('utf-8').splitlines()
             reader = csv.DictReader(decoded_file)
             for row in reader:
@@ -36,27 +39,60 @@ def import_customers(request):
                     username=row['username'],
                     defaults={'first_name': row['first_name'], 'last_name': row['last_name'], 'email': row['email']}
                 )
-                Customer.objects.get_or_create(
+                customer, created = Customer.objects.get_or_create(
                     user=user,
-                    defaults={'address': row['address'], 'mobile': row['mobile']}
+                    defaults={
+                        'address': row['address'],
+                        'mobile': row['mobile']
+                    }
                 )
+                if 'profile_pic' in row and row['profile_pic']:
+                    profile_pic_url = row['profile_pic']
+                    response = requests.get(profile_pic_url)
+                    if response.status_code == 200:
+                        file_name = profile_pic_url.split("/")[-1]
+                        customer.profile_pic.save(file_name, ContentFile(response.content))
             messages.success(request, 'Données importées avec succès.')
             return redirect('admin-view-customer')
     else:
         form = CSVUploadForm()
     return render(request, 'service/import.html', {'form': form})
 
-from django.shortcuts import render
-from .forms import ExportForm
-from .models import Customer, Technician
-import csv
-from django.http import HttpResponse
-from django.shortcuts import render
-from .forms import ExportForm
-from .models import Customer, Technician
-import csv
-from django.http import HttpResponse
+def import_from_csv(request):
+    if request.method == 'POST':
+        csv_file = request.FILES['csv_file']
 
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'Le fichier n\'est pas au format CSV')
+            return HttpResponseRedirect(request.path_info)
+
+        # Lecture du fichier CSV et création des objets
+        decoded_file = csv_file.read().decode('utf-8').splitlines()
+        reader = csv.DictReader(decoded_file)
+        for row in reader:
+            if 'Skill' in row:  # Pour distinguer entre Customer et Technician
+                technician = Technician.objects.create(
+                    user=None,  # Vous devrez remplir ces champs en fonction de votre logique
+                    address=row['Address'],
+                    mobile=row['Mobile'],
+                    skill=row['Skill'],
+                    salary=row['Salary'],
+                    status=row['Status']
+                )
+            else:
+                customer = Customer.objects.create(
+                    user=None,  # Vous devrez remplir ces champs en fonction de votre logique
+                    address=row['Address'],
+                    mobile=row['Mobile']
+                )
+
+        # Redirection après l'importation réussie
+        return HttpResponseRedirect('/import/success/')  # Changer l'URL selon vos besoins
+
+    else:
+        form = ImportForm()  # Créez un formulaire d'importation si nécessaire
+        return render(request, 'import.html', {'form': form})  # Afficher le formulaire d'importation dans le template
+        
 def export_to_csv(request):
     # Récupérer les données des deux modèles
     customers = Customer.objects.all()
@@ -88,16 +124,28 @@ def export_to_csv(request):
 
     context = {'form': form}
     return render(request, 'service/export.html', context)
+
 def export_customers(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="customers.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['username', 'first_name', 'last_name', 'email', 'address', 'mobile'])
+    # Ajouter le champ profile_pic à l'en-tête
+    writer.writerow(['username', 'first_name', 'last_name', 'email', 'address', 'mobile', 'profile_pic'])
 
     customers = Customer.objects.all()
     for customer in customers:
-        writer.writerow([customer.user.username, customer.user.first_name, customer.user.last_name, customer.user.email, customer.address, customer.mobile])
+        # Ajouter profile_pic à la ligne de données
+        profile_pic_url = customer.profile_pic.url if customer.profile_pic else ''
+        writer.writerow([
+            customer.user.username, 
+            customer.user.first_name, 
+            customer.user.last_name, 
+            customer.user.email, 
+            customer.address, 
+            customer.mobile,
+            profile_pic_url
+        ])
 
     return response
 
