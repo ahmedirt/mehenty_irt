@@ -46,6 +46,38 @@ def import_customers(request):
         form = CSVUploadForm()
     return render(request, 'service/import.html', {'form': form})
 
+from django.shortcuts import render
+from .forms import ExportForm
+from .models import Customer, Technician
+import csv
+from django.http import HttpResponse
+
+def export_to_csv(request):
+    form = ExportForm(request.POST or None)
+    if form.is_valid():
+        model_name = form.cleaned_data['model']
+        if model_name == 'Customer':
+            queryset = Customer.objects.all()
+            filename = 'customers.csv'
+            fieldnames = ['user', 'address', 'mobile']
+        elif model_name == 'Technician':
+            queryset = Technician.objects.all()
+            filename = 'technicians.csv'
+            fieldnames = ['user', 'address', 'mobile', 'skill', 'salary', 'status']
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        writer = csv.DictWriter(response, fieldnames=fieldnames)
+        writer.writeheader()
+        for obj in queryset:
+            row = {field: getattr(obj, field) for field in fieldnames}
+            writer.writerow(row)
+        
+        return response
+
+    context = {'form': form}
+    return render(request, 'service/export.html', context)
 def export_customers(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="customers.csv"'

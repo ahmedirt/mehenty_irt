@@ -14,13 +14,7 @@ class Customer(models.Model):
         return self
     def __str__(self):
         return self.user.first_name
-# class Service(models.Model):
-#     service_name = models.CharField(max_length=100)
-#     description = models.TextField()
-#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
-#     def __str__(self):
-#         return self.service_name
 
 class Technician(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)

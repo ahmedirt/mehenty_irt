@@ -4,7 +4,12 @@ from . import models
 # importaion et exporation 
 
 from django import forms
+from django import forms
+from .models import Customer, Technician
 
+class ExportForm(forms.Form):
+    model_choices = [('Customer', 'Customer'), ('Technician', 'Technician')]
+    model = forms.ChoiceField(choices=model_choices)
 class CSVUploadForm(forms.Form):
     csv_file = forms.FileField()
 
