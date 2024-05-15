@@ -59,5 +59,14 @@ urlpatterns = [
     path('customerlogin', LoginView.as_view(template_name='service/customerlogin.html'),name='customerlogin'),
     path('Techniciansignup', views.Technician_signup_view,name='Techniciansignup'),
     path('Technicianlogin', LoginView.as_view(template_name='service/Technicianlogin.html'),name='Technicianlogin'),   
+    
+    # moi tp2
+    path('import-csv/', views.import_csv, name='import_csv'),
+    path('export-csv/', views.export_csv, name='export_csv'),
+    path('success/', views.success, name='success'),
 ]
+
+
+
+   
 

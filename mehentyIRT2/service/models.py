@@ -64,3 +64,14 @@ class Feedback(models.Model):
     date=models.DateField(auto_now=True)
     by=models.CharField(max_length=40)
     message=models.CharField(max_length=500)
+
+
+# service/models.py
+
+class Service(models.Model):
+    service_name = models.CharField(max_length=100)
+    description = models.TextField()
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.service_name

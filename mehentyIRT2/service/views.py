@@ -2,10 +2,13 @@ from django.shortcuts import render,redirect,reverse
 from . import forms,models
 from django.db.models import Sum
 from django.contrib.auth.models import Group
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,HttpResponse
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.conf import settings
 from django.db.models import Q
+import csv
+from .models import Customer, Service
+from .forms import CSVImportForm
 
 def home_view(request):
     if request.user.is_authenticated:
@@ -499,3 +502,55 @@ def contactus_view(request):
             send_mail(str(name)+' || '+str(email),message,settings.EMAIL_HOST_USER, settings.EMAIL_RECEIVING_USER, fail_silently = False)
             return render(request, 'service/contactussuccess.html')
     return render(request, 'service/contactus.html', {'form':sub})
+
+# moi tp2
+def import_csv(request):
+    if request.method == 'POST':
+        form = CSVImportForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES['csv_file']
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+            for row in reader:
+                if 'email' in row:  # Assuming the presence of 'email' indicates Customer data
+                    customer, created = Customer.objects.get_or_create(
+                        email=row['email'],
+                        defaults={
+                            'name': row['name'],
+                            'phone': row['phone']
+                        }
+                    )
+                else:  # Otherwise, it's Service data
+                    customer = Customer.objects.get(email=row['customer_email'])
+                    Service.objects.create(
+                        service_name=row['service_name'],
+                        description=row['description'],
+                        customer=customer
+                    )
+            return redirect('success')
+    else:
+        form = CSVImportForm()
+    return render(request, 'import_csv.html', {'form': form})
+
+def export_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="data.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['id', 'name', 'email', 'phone'])
+    customers = Customer.objects.all()
+    for customer in customers:
+        writer.writerow([customer.id, customer.name, customer.email, customer.phone])
+
+    writer.writerow([])
+    writer.writerow(['id', 'service_name', 'description', 'customer_id'])
+    services = Service.objects.all()
+    for service in services:
+        writer.writerow([service.id, service.service_name, service.description, service.customer.id])
+    
+    return response
+
+
+def success(request):
+    return HttpResponse('Importation réussie!')
+
