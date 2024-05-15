@@ -13,48 +13,50 @@ import csv
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
-from .models import Customer, Service
+from .models import Customer
 from .forms import CSVUploadForm
 
-def import_data(request):
+# service/views.py
+import csv
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import Customer
+from .forms import CSVUploadForm
+
+def import_customers(request):
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            csv_file = request.FILES['csv_file']
+            csv_file = request.FILES['file']
             decoded_file = csv_file.read().decode('utf-8').splitlines()
             reader = csv.DictReader(decoded_file)
             for row in reader:
-                try:
-                    customer, created = Customer.objects.get_or_create(
-                        name=row['name'],
-                        email=row['email'],
-                        phone=row['phone']
-                    )
-                    Service.objects.create(
-                        service_name=row['service_name'],
-                        description=row['description'],
-                        customer=customer
-                    )
-                except Exception as e:
-                    messages.error(request, f"Error in row {row}: {e}")
-            messages.success(request, "Data imported successfully.")
-            return redirect('import_data')
+                user, created = User.objects.get_or_create(
+                    username=row['username'],
+                    defaults={'first_name': row['first_name'], 'last_name': row['last_name'], 'email': row['email']}
+                )
+                Customer.objects.get_or_create(
+                    user=user,
+                    defaults={'address': row['address'], 'mobile': row['mobile']}
+                )
+            messages.success(request, 'Données importées avec succès.')
+            return redirect('admin-view-customer')
     else:
         form = CSVUploadForm()
-    return render(request, 'import.html', {'form': form})
+    return render(request, 'service/import.html', {'form': form})
 
-def export_data(request):
+def export_customers(request):
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="data.csv"'
-    
+    response['Content-Disposition'] = 'attachment; filename="customers.csv"'
+
     writer = csv.writer(response)
-    writer.writerow(['Customer ID', 'Name', 'Email', 'Phone', 'Service ID', 'Service Name', 'Description'])
-    
-    services = Service.objects.all().select_related('customer')
-    for service in services:
-        writer.writerow([service.customer.id, service.customer.name, service.customer.email, service.customer.phone,
-                         service.id, service.service_name, service.description])
-    
+    writer.writerow(['username', 'first_name', 'last_name', 'email', 'address', 'mobile'])
+
+    customers = Customer.objects.all()
+    for customer in customers:
+        writer.writerow([customer.user.username, customer.user.first_name, customer.user.last_name, customer.user.email, customer.address, customer.mobile])
+
     return response
 
 

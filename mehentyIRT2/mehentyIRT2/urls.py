@@ -6,14 +6,13 @@ from django.urls import path
 from service import views
 from django.contrib.auth.views import LoginView,LogoutView
 from django.urls import path
-from .views import import_data, export_data
+# from .views import import_data, export_data
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-
-    path('import/', import_data, name='import_data'),
-    path('export/', export_data, name='export_data'),
+    path('import/', views.import_customers, name='import-customers'),
+    path('export/', views.export_customers, name='export-customers'),
 
 
 
