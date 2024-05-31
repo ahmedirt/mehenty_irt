@@ -21,7 +21,10 @@ urlpatterns = [
     path('adminclick', views.adminclick_view),
     path('customerclick', views.customerclick_view),
     path('Techniciansclick', views.Techniciansclick_view),
-
+    
+    #==================
+    #Admin
+    #==================
    
     path('adminlogin', LoginView.as_view(template_name='service/adminlogin.html'),name='adminlogin'),
     path('admin-dashboard', views.admin_dashboard_view,name='admin-dashboard'),
@@ -53,13 +56,26 @@ urlpatterns = [
     path('aboutus', views.aboutus_view),
     path('contactus', views.contactus_view),
 
+    #=================
+    #client or custmor
+    #=================
 
     path('customersignup', views.customer_signup_view,name='customersignup'),
     path('customerlogin', LoginView.as_view(template_name='service/customerlogin.html'),name='customerlogin'),
-
-
+    path('customer-dashboard', views.customer_dashboard_view,name='customer-dashboard'),
+    path('customer-request', views.customer_request_view,name='customer-request'),
+    path('customer-add-request',views.customer_add_request_view,name='customer-add-request'),
+    path('customer-profile', views.customer_profile_view,name='customer-profile'),
+    path('edit-customer-profile', views.edit_customer_profile_view,name='edit-customer-profile'),
+    #================
+    #Technician
+    #================
     path('Techniciansignup', views.Technician_signup_view,name='Techniciansignup'),
     path('Technicianlogin', LoginView.as_view(template_name='service/Technicianlogin.html'),name='Technicianlogin'), 
     path('afterlogin', views.afterlogin_view,name='afterlogin'),  
+    path('Technician-dashboard', views.Technician_dashboard_view,name='Technician-dashboard'),
+    path('Technician-work-assigned', views.Technician_work_assigned_view,name='Technician-work-assigned'),
+    path('Technician-profile', views.Technician_profile_view,name='Technician-profile'),
+    path('edit-Technician-profile', views.edit_Technician_profile_view,name='edit-Technician-profile'),
 ]
 
