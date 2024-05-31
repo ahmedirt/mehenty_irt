@@ -760,7 +760,124 @@ def customer_feedback_view(request):
 # CUSTOMER RELATED views END
 #============================================================================================
 
-# for aboutus and contact
+
+
+
+
+#============================================================================================
+# Technician RELATED views start by 23243| 23104 |23044
+#============================================================================================
+
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_dashboard_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    work_in_progress=models.Request.objects.all().filter(Technician_id=Technician.id,status='Repairing').count()
+    work_completed=models.Request.objects.all().filter(Technician_id=Technician.id,status='Repairing Done').count()
+    new_work_assigned=models.Request.objects.all().filter(Technician_id=Technician.id,status='Approved').count()
+    dict={
+    'work_in_progress':work_in_progress,
+    'work_completed':work_completed,
+    'new_work_assigned':new_work_assigned,
+    'salary':Technician.salary,
+    'Technician':Technician,
+    }
+    return render(request,'service/Technician_dashboard.html',context=dict)
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_work_assigned_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    works=models.Request.objects.all().filter(Technician_id=Technician.id)
+    return render(request,'service/Technician_work_assigned.html',{'works':works,'Technician':Technician})
+
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_update_status_view(request,pk):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    updateStatus=forms.TechnicianUpdateStatusForm()
+    if request.method=='POST':
+        updateStatus=forms.TechnicianUpdateStatusForm(request.POST)
+        if updateStatus.is_valid():
+            enquiry_x=models.Request.objects.get(id=pk)
+            enquiry_x.status=updateStatus.cleaned_data['status']
+            enquiry_x.save()
+        else:
+            print("form is invalid")
+        return HttpResponseRedirect('/Technician-work-assigned')
+    return render(request,'service/Technician_update_status.html',{'updateStatus':updateStatus,'Technician':Technician})
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_attendance_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    attendaces=models.Attendance.objects.all().filter(Technician=Technician)
+    return render(request,'service/Technician_view_attendance.html',{'attendaces':attendaces,'Technician':Technician})
+
+
+
+
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_feedback_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    feedback=forms.FeedbackForm()
+    if request.method=='POST':
+        feedback=forms.FeedbackForm(request.POST)
+        if feedback.is_valid():
+            feedback.save()
+        else:
+            print("form is invalid")
+        return render(request,'service/feedback_sent.html',{'Technician':Technician})
+    return render(request,'service/Technician_feedback.html',{'feedback':feedback,'Technician':Technician})
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_salary_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    workdone=models.Request.objects.all().filter(Technician_id=Technician.id).filter(Q(status="Repairing Done") | Q(status="Released"))
+    return render(request,'service/Technician_salary.html',{'workdone':workdone,'Technician':Technician})
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_profile_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    return render(request,'service/Technician_profile.html',{'Technician':Technician})
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def edit_Technician_profile_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    user=models.User.objects.get(id=Technician.user_id)
+    userForm=forms.TechnicianUserForm(instance=user)
+    TechnicianForm=forms.TechnicianForm(request.FILES,instance=Technician)
+    mydict={'userForm':userForm,'TechnicianForm':TechnicianForm,'Technician':Technician}
+    if request.method=='POST':
+        userForm=forms.TechnicianUserForm(request.POST,instance=user)
+        TechnicianForm=forms.TechnicianForm(request.POST,request.FILES,instance=Technician)
+        if userForm.is_valid() and TechnicianForm.is_valid():
+            user=userForm.save()
+            user.set_password(user.password)
+            user.save()
+            TechnicianForm.save()
+            return redirect('Technician-profile')
+    return render(request,'service/edit_Technician_profile.html',context=mydict)
+
+
+
+
+
+
+#============================================================================================
+# Technician RELATED views end by | Ahmed Abd Dayme Ahmed Bouha 23243
+#============================================================================================
+
+#============================================================================================
+#for aboutus and contact
+#==============================================================================================
 def aboutus_view(request):
     return render(request,'service/aboutus.html')
 
