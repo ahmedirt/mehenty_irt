@@ -627,6 +627,138 @@ def admin_feedback_view(request):
 #============================================================================================
 
 
+#============================================================================================
+# CUSTOMER RELATED views start  by | ahmedabddaymeahmedbouha | 23243 |
+#============================================================================================
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_dashboard_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    work_in_progress=models.Request.objects.all().filter(customer_id=customer.id,status='Repairing').count()
+    work_completed=models.Request.objects.all().filter(customer_id=customer.id).filter(Q(status="Repairing Done") | Q(status="Released")).count()
+    new_request_made=models.Request.objects.all().filter(customer_id=customer.id).filter(Q(status="Pending") | Q(status="Approved")).count()
+    bill=models.Request.objects.all().filter(customer_id=customer.id).filter(Q(status="Repairing Done") | Q(status="Released")).aggregate(Sum('cost'))
+    print(bill)
+    dict={
+    'work_in_progress':work_in_progress,
+    'work_completed':work_completed,
+    'new_request_made':new_request_made,
+    'bill':bill['cost__sum'],
+    'customer':customer,
+    }
+    return render(request,'service/customer_dashboard.html',context=dict)
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_request_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    return render(request,'service/customer_request.html',{'customer':customer})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_view_request_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiries=models.Request.objects.all().filter(customer_id=customer.id , status="Pending")
+    return render(request,'service/customer_view_request.html',{'customer':customer,'enquiries':enquiries})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_delete_request_view(request,pk):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiry=models.Request.objects.get(id=pk)
+    enquiry.delete()
+    return redirect('customer-view-request')
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_view_approved_request_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiries=models.Request.objects.all().filter(customer_id=customer.id).exclude(status='Pending')
+    return render(request,'service/customer_view_approved_request.html',{'customer':customer,'enquiries':enquiries})
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_view_approved_request_invoice_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiries=models.Request.objects.all().filter(customer_id=customer.id).exclude(status='Pending')
+    return render(request,'service/customer_view_approved_request_invoice.html',{'customer':customer,'enquiries':enquiries})
+
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_add_request_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiry=forms.RequestForm()
+    if request.method=='POST':
+        enquiry=forms.RequestForm(request.POST)
+        if enquiry.is_valid():
+            customer=models.Customer.objects.get(user_id=request.user.id)
+            enquiry_x=enquiry.save(commit=False)
+            enquiry_x.customer=customer
+            enquiry_x.save()
+        else:
+            print("form is invalid")
+        return HttpResponseRedirect('customer-dashboard')
+    return render(request,'service/customer_add_request.html',{'enquiry':enquiry,'customer':customer})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_profile_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    return render(request,'service/customer_profile.html',{'customer':customer})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def edit_customer_profile_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    user=models.User.objects.get(id=customer.user_id)
+    userForm=forms.CustomerUserForm(instance=user)
+    customerForm=forms.CustomerForm(request.FILES,instance=customer)
+    mydict={'userForm':userForm,'customerForm':customerForm,'customer':customer}
+    if request.method=='POST':
+        userForm=forms.CustomerUserForm(request.POST,instance=user)
+        customerForm=forms.CustomerForm(request.POST,instance=customer)
+        if userForm.is_valid() and customerForm.is_valid():
+            user=userForm.save()
+            user.set_password(user.password)
+            user.save()
+            customerForm.save()
+            return HttpResponseRedirect('customer-profile')
+    return render(request,'service/edit_customer_profile.html',context=mydict)
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_invoice_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiries=models.Request.objects.all().filter(customer_id=customer.id).exclude(status='Pending')
+    return render(request,'service/customer_invoice.html',{'customer':customer,'enquiries':enquiries})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_feedback_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    feedback=forms.FeedbackForm()
+    if request.method=='POST':
+        feedback=forms.FeedbackForm(request.POST)
+        if feedback.is_valid():
+            feedback.save()
+        else:
+            print("form is invalid")
+        return render(request,'service/feedback_sent_by_customer.html',{'customer':customer})
+    return render(request,'service/customer_feedback.html',{'feedback':feedback,'customer':customer})
+
+#============================================================================================
+# CUSTOMER RELATED views END
+#============================================================================================
 
 # for aboutus and contact
 def aboutus_view(request):
