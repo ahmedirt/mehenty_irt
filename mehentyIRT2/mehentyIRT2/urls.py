@@ -6,7 +6,7 @@ from django.urls import path
 from service import views
 from django.contrib.auth.views import LoginView,LogoutView
 from django.urls import path
-# from .views import import_data, export_data
+#from .views import import_data, export_data
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -51,7 +51,8 @@ urlpatterns = [
     path('admin-view-customer-enquiry', views.admin_view_customer_enquiry_view,name='admin-view-customer-enquiry'),
     path('admin-view-customer-invoice', views.admin_view_customer_invoice_view,name='admin-view-customer-invoice'),
     path('update-salary/<int:pk>', views.update_salary_view,name='update-salary'),
-    
+    path('admin-report', views.admin_report_view,name='admin-report'),
+
     path('logout', LogoutView.as_view(template_name='service/index.html'),name='logout'),
     path('aboutus', views.aboutus_view),
     path('contactus', views.contactus_view),
