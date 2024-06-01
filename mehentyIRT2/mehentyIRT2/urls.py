@@ -45,9 +45,12 @@ urlpatterns = [
     path('admin-approve-Technician',views.admin_approve_Technician_view,name='admin-approve-Technician'),
     path('approve-Technician/<int:pk>', views.approve_Technician_view,name='approve-Technician'),
     path('delete-Technician/<int:pk>', views.delete_Technician_view,name='delete-Technician'),
-   
-    
-  
+    path('admin-view-service-cost',views.admin_view_service_cost_view,name='admin-view-service-cost'),
+    path('update-cost/<int:pk>', views.update_cost_view,name='update-cost'),
+    path('admin-view-Technician-salary',views.admin_view_Technician_salary_view,name='admin-view-Technician-salary'),
+    path('admin-view-customer-enquiry', views.admin_view_customer_enquiry_view,name='admin-view-customer-enquiry'),
+    path('admin-view-customer-invoice', views.admin_view_customer_invoice_view,name='admin-view-customer-invoice'),
+    path('update-salary/<int:pk>', views.update_salary_view,name='update-salary'),
     
     path('logout', LogoutView.as_view(template_name='service/index.html'),name='logout'),
     path('aboutus', views.aboutus_view),
@@ -64,6 +67,11 @@ urlpatterns = [
     path('customer-add-request',views.customer_add_request_view,name='customer-add-request'),
     path('customer-profile', views.customer_profile_view,name='customer-profile'),
     path('edit-customer-profile', views.edit_customer_profile_view,name='edit-customer-profile'),
+    path('customer-invoice', views.customer_invoice_view,name='customer-invoice'),
+    path('customer-view-request',views.customer_view_request_view,name='customer-view-request'),
+    path('customer-delete-request/<int:pk>', views.customer_delete_request_view,name='customer-delete-request'),
+    path('customer-view-approved-request',views.customer_view_approved_request_view,name='customer-view-approved-request'),
+    path('customer-view-approved-request-invoice',views.customer_view_approved_request_invoice_view,name='customer-view-approved-request-invoice'),
     #================
     #Technician
     #================
@@ -72,8 +80,10 @@ urlpatterns = [
     path('afterlogin', views.afterlogin_view,name='afterlogin'),  
     path('Technician-dashboard', views.Technician_dashboard_view,name='Technician-dashboard'),
     path('Technician-work-assigned', views.Technician_work_assigned_view,name='Technician-work-assigned'),
+    path('Technician-update-status/<int:pk>', views.Technician_update_status_view,name='Technician-update-status'),
     path('Technician-profile', views.Technician_profile_view,name='Technician-profile'),
-    path('edit-Technician-profile', views.edit_Technician_profile_view,name='edit-Technician-profile')
+    path('edit-Technician-profile', views.edit_Technician_profile_view,name='edit-Technician-profile'),
+    path('Technician-salary', views.Technician_salary_view,name='Technician-salary'),
 ]
 
 
