@@ -15,6 +15,7 @@ class Customer(models.Model):
     def __str__(self):
         return self.user.first_name
 
+
 class Technician(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     profile_pic= models.ImageField(upload_to='profile_pic/TechnicianProfilePic/',null=True,blank=True)

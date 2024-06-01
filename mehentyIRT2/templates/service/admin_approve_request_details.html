@@ -35,16 +35,21 @@
 </head>
 
 <br><br><br><br><br>
-<h3 style="text-align:center;">Update SALARY AS PER SKILL & APPROVE</h3>
+<h3 style="text-align:center;">APPROVE REQUEST OR CHANGE STATUS</h3>
 <div>
   <form method="post" style="margin-left:200px;margin-right:200px;">
       {% csrf_token %}
 
-    <label for="salary">Salary </label>
-    {% render_field TechnicianSalary.salary class="form-control" placeholder="salary" %}
+    <label for="cost">Repair Cost</label>
+    {% render_field adminenquiry.cost class="form-control" placeholder="Repair Cost" %}
 
+    <label for="Technician">Assign Technician</label>
+    {% render_field adminenquiry.Technician class="form-control"  %}
 
-    <input type="submit" value="Approve">
+    <label for="status">Status</label>
+    {% render_field adminenquiry.status class="form-control" %}
+
+    <input type="submit" value="Submit">
   </form>
 </div>
 

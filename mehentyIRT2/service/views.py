@@ -2,13 +2,157 @@ from django.shortcuts import render,redirect,reverse
 from . import forms,models
 from django.db.models import Sum
 from django.contrib.auth.models import Group
-from django.http import HttpResponseRedirect,HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.conf import settings
 from django.db.models import Q
 import csv
 from .models import Customer, Service
 from .forms import CSVImportForm
+
+
+# importation et exportation :
+import csv
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import Customer
+from .forms import CSVUploadForm
+
+from .models import Customer,Technician
+from .forms import CSVUploadForm
+import csv
+from django.core.files.base import ContentFile
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import Customer
+from .forms import CSVUploadForm
+import requests
+
+def import_customers(request):
+    if request.method == 'POST':
+        form = CSVUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES['csv_file']
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+            for row in reader:
+                user, created = User.objects.get_or_create(
+                    username=row['username'],
+                    defaults={'first_name': row['first_name'], 'last_name': row['last_name'], 'email': row['email']}
+                )
+                customer, created = Customer.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        'address': row['address'],
+                        'mobile': row['mobile']
+                    }
+                )
+                if 'profile_pic' in row and row['profile_pic']:
+                    profile_pic_url = row['profile_pic']
+                    response = requests.get(profile_pic_url)
+                    if response.status_code == 200:
+                        file_name = profile_pic_url.split("/")[-1]
+                        customer.profile_pic.save(file_name, ContentFile(response.content))
+            messages.success(request, 'Données importées avec succès.')
+            return redirect('admin-view-customer')
+    else:
+        form = CSVUploadForm()
+    return render(request, 'service/import.html', {'form': form})
+
+def import_from_csv(request):
+    if request.method == 'POST':
+        csv_file = request.FILES['csv_file']
+
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'Le fichier n\'est pas au format CSV')
+            return HttpResponseRedirect(request.path_info)
+
+        # Lecture du fichier CSV et création des objets
+        decoded_file = csv_file.read().decode('utf-8').splitlines()
+        reader = csv.DictReader(decoded_file)
+        for row in reader:
+            if 'Skill' in row:  # Pour distinguer entre Customer et Technician
+                technician = Technician.objects.create(
+                    user=None,  # Vous devrez remplir ces champs en fonction de votre logique
+                    address=row['Address'],
+                    mobile=row['Mobile'],
+                    skill=row['Skill'],
+                    salary=row['Salary'],
+                    status=row['Status']
+                )
+            else:
+                customer = Customer.objects.create(
+                    user=None,  # Vous devrez remplir ces champs en fonction de votre logique
+                    address=row['Address'],
+                    mobile=row['Mobile']
+                )
+
+        # Redirection après l'importation réussie
+        return HttpResponseRedirect('/import/success/')  # Changer l'URL selon vos besoins
+
+    else:
+        form = ImportForm()  # Créez un formulaire d'importation si nécessaire
+        return render(request, 'import.html', {'form': form})  # Afficher le formulaire d'importation dans le template
+        
+def export_to_csv(request):
+    # Récupérer les données des deux modèles
+    customers = Customer.objects.all()
+    technicians = Technician.objects.all()
+
+    # Fusionner les données dans une liste
+    all_data = list(customers) + list(technicians)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="export.csv"'
+
+    # Définir les noms de colonnes pour les deux modèles
+    fieldnames = ['Name', 'Address', 'Mobile', 'Skill', 'Salary', 'Status']
+
+    writer = csv.DictWriter(response, fieldnames=fieldnames)
+    writer.writeheader()
+
+    # Écrire les données dans le fichier CSV
+    for obj in all_data:
+        if isinstance(obj, Customer):
+            row = {'Name': obj.get_name, 'Address': obj.address, 'Mobile': obj.mobile,
+                   'Skill': '', 'Salary': '', 'Status': ''}
+        elif isinstance(obj, Technician):
+            row = {'Name': obj.get_name, 'Address': obj.address, 'Mobile': obj.mobile,
+                   'Skill': obj.skill, 'Salary': obj.salary, 'Status': obj.status}
+        writer.writerow(row)
+
+    return response
+
+    context = {'form': form}
+    return render(request, 'service/export.html', context)
+
+def export_customers(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="customers.csv"'
+
+    writer = csv.writer(response)
+    # Ajouter le champ profile_pic à l'en-tête
+    writer.writerow(['username', 'first_name', 'last_name', 'email', 'address', 'mobile', 'profile_pic'])
+
+    customers = Customer.objects.all()
+    for customer in customers:
+        # Ajouter profile_pic à la ligne de données
+        profile_pic_url = customer.profile_pic.url if customer.profile_pic else ''
+        writer.writerow([
+            customer.user.username, 
+            customer.user.first_name, 
+            customer.user.last_name, 
+            customer.user.email, 
+            customer.address, 
+            customer.mobile,
+            profile_pic_url
+        ])
+
+    return response
+
+
 
 def home_view(request):
     if request.user.is_authenticated:
@@ -486,8 +630,257 @@ def admin_feedback_view(request):
 #============================================================================================
 
 
+#============================================================================================
+# CUSTOMER RELATED views start  by | ahmedabddaymeahmedbouha | 23243 |
+#============================================================================================
 
-# for aboutus and contact
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_dashboard_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    work_in_progress=models.Request.objects.all().filter(customer_id=customer.id,status='Repairing').count()
+    work_completed=models.Request.objects.all().filter(customer_id=customer.id).filter(Q(status="Repairing Done") | Q(status="Released")).count()
+    new_request_made=models.Request.objects.all().filter(customer_id=customer.id).filter(Q(status="Pending") | Q(status="Approved")).count()
+    bill=models.Request.objects.all().filter(customer_id=customer.id).filter(Q(status="Repairing Done") | Q(status="Released")).aggregate(Sum('cost'))
+    print(bill)
+    dict={
+    'work_in_progress':work_in_progress,
+    'work_completed':work_completed,
+    'new_request_made':new_request_made,
+    'bill':bill['cost__sum'],
+    'customer':customer,
+    }
+    return render(request,'service/customer_dashboard.html',context=dict)
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_request_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    return render(request,'service/customer_request.html',{'customer':customer})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_view_request_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiries=models.Request.objects.all().filter(customer_id=customer.id , status="Pending")
+    return render(request,'service/customer_view_request.html',{'customer':customer,'enquiries':enquiries})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_delete_request_view(request,pk):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiry=models.Request.objects.get(id=pk)
+    enquiry.delete()
+    return redirect('customer-view-request')
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_view_approved_request_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiries=models.Request.objects.all().filter(customer_id=customer.id).exclude(status='Pending')
+    return render(request,'service/customer_view_approved_request.html',{'customer':customer,'enquiries':enquiries})
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_view_approved_request_invoice_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiries=models.Request.objects.all().filter(customer_id=customer.id).exclude(status='Pending')
+    return render(request,'service/customer_view_approved_request_invoice.html',{'customer':customer,'enquiries':enquiries})
+
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_add_request_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiry=forms.RequestForm()
+    if request.method=='POST':
+        enquiry=forms.RequestForm(request.POST)
+        if enquiry.is_valid():
+            customer=models.Customer.objects.get(user_id=request.user.id)
+            enquiry_x=enquiry.save(commit=False)
+            enquiry_x.customer=customer
+            enquiry_x.save()
+        else:
+            print("form is invalid")
+        return HttpResponseRedirect('customer-dashboard')
+    return render(request,'service/customer_add_request.html',{'enquiry':enquiry,'customer':customer})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_profile_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    return render(request,'service/customer_profile.html',{'customer':customer})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def edit_customer_profile_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    user=models.User.objects.get(id=customer.user_id)
+    userForm=forms.CustomerUserForm(instance=user)
+    customerForm=forms.CustomerForm(request.FILES,instance=customer)
+    mydict={'userForm':userForm,'customerForm':customerForm,'customer':customer}
+    if request.method=='POST':
+        userForm=forms.CustomerUserForm(request.POST,instance=user)
+        customerForm=forms.CustomerForm(request.POST,instance=customer)
+        if userForm.is_valid() and customerForm.is_valid():
+            user=userForm.save()
+            user.set_password(user.password)
+            user.save()
+            customerForm.save()
+            return HttpResponseRedirect('customer-profile')
+    return render(request,'service/edit_customer_profile.html',context=mydict)
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_invoice_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    enquiries=models.Request.objects.all().filter(customer_id=customer.id).exclude(status='Pending')
+    return render(request,'service/customer_invoice.html',{'customer':customer,'enquiries':enquiries})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def customer_feedback_view(request):
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    feedback=forms.FeedbackForm()
+    if request.method=='POST':
+        feedback=forms.FeedbackForm(request.POST)
+        if feedback.is_valid():
+            feedback.save()
+        else:
+            print("form is invalid")
+        return render(request,'service/feedback_sent_by_customer.html',{'customer':customer})
+    return render(request,'service/customer_feedback.html',{'feedback':feedback,'customer':customer})
+
+#============================================================================================
+# CUSTOMER RELATED views END
+#============================================================================================
+
+
+
+
+
+#============================================================================================
+# Technician RELATED views start by 23243| 23104 |23044
+#============================================================================================
+
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_dashboard_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    work_in_progress=models.Request.objects.all().filter(Technician_id=Technician.id,status='Repairing').count()
+    work_completed=models.Request.objects.all().filter(Technician_id=Technician.id,status='Repairing Done').count()
+    new_work_assigned=models.Request.objects.all().filter(Technician_id=Technician.id,status='Approved').count()
+    dict={
+    'work_in_progress':work_in_progress,
+    'work_completed':work_completed,
+    'new_work_assigned':new_work_assigned,
+    'salary':Technician.salary,
+    'Technician':Technician,
+    }
+    return render(request,'service/Technician_dashboard.html',context=dict)
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_work_assigned_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    works=models.Request.objects.all().filter(Technician_id=Technician.id)
+    return render(request,'service/Technician_work_assigned.html',{'works':works,'Technician':Technician})
+
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_update_status_view(request,pk):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    updateStatus=forms.TechnicianUpdateStatusForm()
+    if request.method=='POST':
+        updateStatus=forms.TechnicianUpdateStatusForm(request.POST)
+        if updateStatus.is_valid():
+            enquiry_x=models.Request.objects.get(id=pk)
+            enquiry_x.status=updateStatus.cleaned_data['status']
+            enquiry_x.save()
+        else:
+            print("form is invalid")
+        return HttpResponseRedirect('/Technician-work-assigned')
+    return render(request,'service/Technician_update_status.html',{'updateStatus':updateStatus,'Technician':Technician})
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_attendance_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    attendaces=models.Attendance.objects.all().filter(Technician=Technician)
+    return render(request,'service/Technician_view_attendance.html',{'attendaces':attendaces,'Technician':Technician})
+
+
+
+
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_feedback_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    feedback=forms.FeedbackForm()
+    if request.method=='POST':
+        feedback=forms.FeedbackForm(request.POST)
+        if feedback.is_valid():
+            feedback.save()
+        else:
+            print("form is invalid")
+        return render(request,'service/feedback_sent.html',{'Technician':Technician})
+    return render(request,'service/Technician_feedback.html',{'feedback':feedback,'Technician':Technician})
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_salary_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    workdone=models.Request.objects.all().filter(Technician_id=Technician.id).filter(Q(status="Repairing Done") | Q(status="Released"))
+    return render(request,'service/Technician_salary.html',{'workdone':workdone,'Technician':Technician})
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def Technician_profile_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    return render(request,'service/Technician_profile.html',{'Technician':Technician})
+
+@login_required(login_url='Technicianlogin')
+@user_passes_test(is_Technician)
+def edit_Technician_profile_view(request):
+    Technician=models.Technician.objects.get(user_id=request.user.id)
+    user=models.User.objects.get(id=Technician.user_id)
+    userForm=forms.TechnicianUserForm(instance=user)
+    TechnicianForm=forms.TechnicianForm(request.FILES,instance=Technician)
+    mydict={'userForm':userForm,'TechnicianForm':TechnicianForm,'Technician':Technician}
+    if request.method=='POST':
+        userForm=forms.TechnicianUserForm(request.POST,instance=user)
+        TechnicianForm=forms.TechnicianForm(request.POST,request.FILES,instance=Technician)
+        if userForm.is_valid() and TechnicianForm.is_valid():
+            user=userForm.save()
+            user.set_password(user.password)
+            user.save()
+            TechnicianForm.save()
+            return redirect('Technician-profile')
+    return render(request,'service/edit_Technician_profile.html',context=mydict)
+
+
+
+
+
+
+#============================================================================================
+# Technician RELATED views end by | Ahmed Abd Dayme Ahmed Bouha 23243
+#============================================================================================
+
+#============================================================================================
+#for aboutus and contact
+#==============================================================================================
 def aboutus_view(request):
     return render(request,'service/aboutus.html')
 

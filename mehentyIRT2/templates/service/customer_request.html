@@ -1,4 +1,4 @@
-{% extends 'service/adminbase.html' %}
+{% extends 'service/customerbase.html' %}
 {% load static %}
 {% block content %}
 
@@ -76,8 +76,8 @@
       <div class="col-md-4 col-xl-3">
         <div class="card bg-c-blue order-card">
           <div class="card-block">
-            <a href="/admin-view-request">
-              <h6 class="m-b-20">View All  Request</h6>
+            <a href="/customer-view-request">
+              <h6 class="m-b-20">View Pending Request</h6>
             </a>
             <h2 class="text-right"><i class="fas fa-eye f-left"></i></h2>
             <br>
@@ -88,7 +88,7 @@
       <div class="col-md-4 col-xl-3">
         <div class="card bg-c-green order-card">
           <div class="card-block">
-            <a href="/admin-add-request">
+            <a href="/customer-add-request">
               <h6 class="m-b-20">Make Request</h6>
             </a>
             <h2 class="text-right"><i class="fas fa-plus-circle f-left"></i></h2>
@@ -100,20 +100,20 @@
       <div class="col-md-4 col-xl-3">
         <div class="card bg-c-yellow order-card">
           <div class="card-block">
-            <a href="/admin-approve-request">
-              <h6 class="m-b-20">Approve Request</h6>
+            <a href="/customer-view-approved-request">
+              <h6 class="m-b-20">Approved Request</h6>
             </a>
             <h2 class="text-right"><i class="fas fa-check-circle f-left"></i></h2>
             <br>
           </div>
         </div>
       </div>
- 
+
       <div class="col-md-4 col-xl-3">
         <div class="card bg-c-pink order-card">
           <div class="card-block">
-            <a href="/admin-view-service-cost">
-              <h6 class="m-b-20">Service Cost</h6>
+            <a href="/customer-view-approved-request-invoice">
+              <h6 class="m-b-20">Approved Request Bill</h6>
             </a>
               <h2 class="text-right"><i class="fas fa-rupee-sign f-left"></i></h2>
             <br>
@@ -121,23 +121,9 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4 col-xl-3">
-      <div class="card bg-c-pink order-card">
-        <div class="card-block">
-          <a href="{% url 'export_to_csv' %}" class="btn btn-primary">Export CSV</a>
-            <h6 class="m-b-20">Export</h6>
-          </a>
-            <h2 class="text-right"><i class="fas fa-rupee-sign f-left"></i></h2>
-          <br>
-        </div>
-      </div>
-    </div>
-  </div>
 
   </div>
   <script src="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
-  <script type="text/javascript">
 
-  </script>
 </body>
 {% endblock content %}

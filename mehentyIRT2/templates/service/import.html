@@ -1,0 +1,11 @@
+<!-- service/templates/service/import.html -->
+{% comment %} {% extends 'service/adminbase.html' %}
+{% load static %} {% endcomment %}
+
+{% comment %} {% block content %} {% endcomment %}
+  <h2>Import Data</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }} <button type="submit">Import</button>
+  </form>
+{% comment %} {% endblock content %} {% endcomment %}
