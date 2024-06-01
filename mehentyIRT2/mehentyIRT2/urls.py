@@ -73,6 +73,10 @@ urlpatterns = [
     path('Technician-dashboard', views.Technician_dashboard_view,name='Technician-dashboard'),
     path('Technician-work-assigned', views.Technician_work_assigned_view,name='Technician-work-assigned'),
     path('Technician-profile', views.Technician_profile_view,name='Technician-profile'),
-    path('edit-Technician-profile', views.edit_Technician_profile_view,name='edit-Technician-profile'),
+    path('edit-Technician-profile', views.edit_Technician_profile_view,name='edit-Technician-profile')
 ]
+
+
+
+   
 
