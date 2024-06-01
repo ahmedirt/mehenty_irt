@@ -21,10 +21,7 @@ urlpatterns = [
     path('adminclick', views.adminclick_view),
     path('customerclick', views.customerclick_view),
     path('Techniciansclick', views.Techniciansclick_view),
-    
-    #==================
-    #Admin
-    #==================
+
    
     path('adminlogin', LoginView.as_view(template_name='service/adminlogin.html'),name='adminlogin'),
     path('admin-dashboard', views.admin_dashboard_view,name='admin-dashboard'),
@@ -56,7 +53,7 @@ urlpatterns = [
     path('aboutus', views.aboutus_view),
     path('contactus', views.contactus_view),
 
-    #=================
+    #================
     #client or custmor
     #=================
 

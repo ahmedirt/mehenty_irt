@@ -13,17 +13,16 @@ import csv
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
-from .models import Customer
 from .forms import CSVUploadForm
-
-# service/views.py
-import csv
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import Customer
-from .forms import CSVUploadForm
+from .forms import ExportForm
+from .models import Customer, Technician
 
+
+
+#===========================
+#importation and exportation
+#===========================
 def import_customers(request):
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
@@ -46,16 +45,7 @@ def import_customers(request):
         form = CSVUploadForm()
     return render(request, 'service/import.html', {'form': form})
 
-from django.shortcuts import render
-from .forms import ExportForm
-from .models import Customer, Technician
-import csv
-from django.http import HttpResponse
-from django.shortcuts import render
-from .forms import ExportForm
-from .models import Customer, Technician
-import csv
-from django.http import HttpResponse
+
 
 def export_to_csv(request):
     # Récupérer les données des deux modèles
