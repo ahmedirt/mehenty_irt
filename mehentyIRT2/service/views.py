@@ -12,44 +12,11 @@ from django.db.models import Q
 import csv
 from django.shortcuts import render, redirect
 from django.contrib import messages
-<<<<<<< HEAD
 from django.http import HttpResponse
-||||||| 66558d4
-from django.http import HttpResponse
-from .models import Customer
-=======
-from django.contrib.auth.models import User
-from .models import Customer
->>>>>>> main
 from .forms import CSVUploadForm
-<<<<<<< HEAD
-||||||| 66558d4
-
-# service/views.py
-import csv
-from django.shortcuts import render, redirect
-from django.contrib import messages
-=======
-
-from .models import Customer,Technician
-from .forms import CSVUploadForm
-import csv
-from django.core.files.base import ContentFile
-from django.shortcuts import render, redirect
-from django.contrib import messages
->>>>>>> main
 from django.contrib.auth.models import User
-<<<<<<< HEAD
 from .forms import ExportForm
 from .models import Customer, Technician
-||||||| 66558d4
-from .models import Customer
-from .forms import CSVUploadForm
-=======
-from .models import Customer
-from .forms import CSVUploadForm
-import requests
->>>>>>> main
 
 
 
@@ -85,58 +52,7 @@ def import_customers(request):
             return redirect('admin-view-customer')
     else:
         form = CSVUploadForm()
-    return render(request, 'service/import.html', {'form': form})
-
-<<<<<<< HEAD
-
-||||||| 66558d4
-from django.shortcuts import render
-from .forms import ExportForm
-from .models import Customer, Technician
-import csv
-from django.http import HttpResponse
-from django.shortcuts import render
-from .forms import ExportForm
-from .models import Customer, Technician
-import csv
-from django.http import HttpResponse
-=======
-def import_from_csv(request):
-    if request.method == 'POST':
-        csv_file = request.FILES['csv_file']
->>>>>>> main
-
-        if not csv_file.name.endswith('.csv'):
-            messages.error(request, 'Le fichier n\'est pas au format CSV')
-            return HttpResponseRedirect(request.path_info)
-
-        # Lecture du fichier CSV et création des objets
-        decoded_file = csv_file.read().decode('utf-8').splitlines()
-        reader = csv.DictReader(decoded_file)
-        for row in reader:
-            if 'Skill' in row:  # Pour distinguer entre Customer et Technician
-                technician = Technician.objects.create(
-                    user=None,  # Vous devrez remplir ces champs en fonction de votre logique
-                    address=row['Address'],
-                    mobile=row['Mobile'],
-                    skill=row['Skill'],
-                    salary=row['Salary'],
-                    status=row['Status']
-                )
-            else:
-                customer = Customer.objects.create(
-                    user=None,  # Vous devrez remplir ces champs en fonction de votre logique
-                    address=row['Address'],
-                    mobile=row['Mobile']
-                )
-
-        # Redirection après l'importation réussie
-        return HttpResponseRedirect('/import/success/')  # Changer l'URL selon vos besoins
-
-    else:
-        form = ImportForm()  # Créez un formulaire d'importation si nécessaire
-        return render(request, 'import.html', {'form': form})  # Afficher le formulaire d'importation dans le template
-        
+    return render(request, 'service/import.html', {'form': form})       
 def export_to_csv(request):
     # Récupérer les données des deux modèles
     customers = Customer.objects.all()
