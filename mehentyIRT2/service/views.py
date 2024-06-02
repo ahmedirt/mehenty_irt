@@ -25,9 +25,9 @@ from django.shortcuts import render
 from .forms import CSVUploadForm
 from .models import Customer
 
-#================
+#=================
 #import and export
-#=============
+#=================
 def import_customers(request):
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
