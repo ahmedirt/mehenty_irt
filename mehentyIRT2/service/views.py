@@ -7,55 +7,82 @@ from django.contrib.auth.decorators import login_required,user_passes_test
 from django.conf import settings
 from django.db.models import Q
 import csv
-from .models import Customer, Service
-from .forms import CSVImportForm
-
-
-# importation et exportation :
-import csv
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.http import HttpResponse
+import os
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.core.files.base import ContentFile
 from .forms import CSVUploadForm
+from .models import Customer
 from django.contrib.auth.models import User
-from .forms import ExportForm
-from .models import Customer, Technician
+from django.conf import settings
+import csv
+import os
+from django.http import JsonResponse
+from django.core.files.base import ContentFile
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.shortcuts import render
+from .forms import CSVUploadForm
+from .models import Customer
 
-
-
-#===========================
-#importation and exportation
-#===========================
 def import_customers(request):
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            csv_file = request.FILES['csv_file']
-            decoded_file = csv_file.read().decode('utf-8').splitlines()
-            reader = csv.DictReader(decoded_file)
-            for row in reader:
-                user, created = User.objects.get_or_create(
-                    username=row['username'],
-                    defaults={'first_name': row['first_name'], 'last_name': row['last_name'], 'email': row['email']}
-                )
-                customer, created = Customer.objects.get_or_create(
-                    user=user,
-                    defaults={
-                        'address': row['address'],
-                        'mobile': row['mobile']
-                    }
-                )
-                if 'profile_pic' in row and row['profile_pic']:
-                    profile_pic_url = row['profile_pic']
-                    response = requests.get(profile_pic_url)
-                    if response.status_code == 200:
-                        file_name = profile_pic_url.split("/")[-1]
-                        customer.profile_pic.save(file_name, ContentFile(response.content))
-            messages.success(request, 'Données importées avec succès.')
-            return redirect('admin-view-customer')
-    else:
-        form = CSVUploadForm()
-    return render(request, 'service/import.html', {'form': form})       
+            try:
+                csv_file = request.FILES['csv_file']
+                decoded_file = csv_file.read().decode('utf-8').splitlines()
+                reader = csv.DictReader(decoded_file)
+                for row in reader:
+                    user, created = User.objects.get_or_create(
+                        username=row['username'],
+                        defaults={'first_name': row['first_name'], 'last_name': row['last_name'], 'email': row['email']}
+                    )
+                    customer, created = Customer.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            'address': row['address'],
+                            'mobile': row['mobile']
+                        }
+                    )
+                    if 'profile_pic' in row and row['profile_pic']:
+                        profile_pic_path = os.path.join(settings.BASE_DIR, 'media', row['profile_pic'].strip('/'))
+                        if os.path.exists(profile_pic_path):
+                            with open(profile_pic_path, 'rb') as f:
+                                file_name = os.path.basename(profile_pic_path)
+                                customer.profile_pic.save(file_name, ContentFile(f.read()))
+                return JsonResponse({'message': 'Données importées avec succès.'})
+            except Exception as e:
+                print(e)  # Log the error to the console
+                return JsonResponse({'error': str(e)}, status=400)
+        else:
+            return JsonResponse({'error': 'Form not valid'}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+def export_customers(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="customers.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['username', 'first_name', 'last_name', 'email', 'address', 'mobile', 'profile_pic'])
+
+    customers = Customer.objects.all()
+    for customer in customers:
+        profile_pic_url = customer.profile_pic.url if customer.profile_pic else ''
+        writer.writerow([
+            customer.user.username, 
+            customer.user.first_name, 
+            customer.user.last_name, 
+            customer.user.email, 
+            customer.address, 
+            customer.mobile,
+            profile_pic_url
+        ])
+
+    return response
+
+    return response     
 def export_to_csv(request):
     # Récupérer les données des deux modèles
     customers = Customer.objects.all()
@@ -88,29 +115,6 @@ def export_to_csv(request):
     context = {'form': form}
     return render(request, 'service/export.html', context)
 
-def export_customers(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="customers.csv"'
-
-    writer = csv.writer(response)
-    # Ajouter le champ profile_pic à l'en-tête
-    writer.writerow(['username', 'first_name', 'last_name', 'email', 'address', 'mobile', 'profile_pic'])
-
-    customers = Customer.objects.all()
-    for customer in customers:
-        # Ajouter profile_pic à la ligne de données
-        profile_pic_url = customer.profile_pic.url if customer.profile_pic else ''
-        writer.writerow([
-            customer.user.username, 
-            customer.user.first_name, 
-            customer.user.last_name, 
-            customer.user.email, 
-            customer.address, 
-            customer.mobile,
-            profile_pic_url
-        ])
-
-    return response
 
 
 

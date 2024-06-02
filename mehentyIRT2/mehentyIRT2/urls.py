@@ -3,16 +3,20 @@ service
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
 from service import views
 from django.contrib.auth.views import LoginView,LogoutView
 from django.urls import path
 #from .views import import_data, export_data
-
+from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    path('import/', views.import_customers, name='import-customers'),
-    path('export/', views.export_customers, name='export-customers'),
+    path('import-customers/', views.import_customers, name='import-customers'),
+    path('export-customers/', views.export_customers, name='export-customers'),
+    # other paths...
+
+    # path('import/', views.import_customers, name='import-customers'),
+    # path('export/', views.export_customers, name='export-customers'),
 
     path('export_request/', views.export_to_csv, name='export_to_csv'),
 
@@ -85,7 +89,7 @@ urlpatterns = [
     path('Technician-profile', views.Technician_profile_view,name='Technician-profile'),
     path('edit-Technician-profile', views.edit_Technician_profile_view,name='edit-Technician-profile'),
     path('Technician-salary', views.Technician_salary_view,name='Technician-salary'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 

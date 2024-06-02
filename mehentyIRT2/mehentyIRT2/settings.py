@@ -135,6 +135,10 @@ STATIC_DIR,
  ]
 
 LOGIN_REDIRECT_URL='/afterlogin'
+import os
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 #for contact us give your gmail id and password
 EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'

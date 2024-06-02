@@ -10,8 +10,11 @@ from .models import Customer, Technician
 class ExportForm(forms.Form):
     model_choices = [('Customer', 'Customer'), ('Technician', 'Technician')]
     model = forms.ChoiceField(choices=model_choices)
+from django import forms
+
 class CSVUploadForm(forms.Form):
     csv_file = forms.FileField()
+
 
 class CustomerUserForm(forms.ModelForm):
     class Meta:
