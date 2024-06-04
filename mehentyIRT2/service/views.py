@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.files.base import ContentFile
 from .forms import CSVUploadForm
-from .models import Customer
+from .models import Customer, Technician
 from django.contrib.auth.models import User
 from django.conf import settings
 import csv

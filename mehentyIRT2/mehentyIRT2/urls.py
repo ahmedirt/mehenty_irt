@@ -89,6 +89,7 @@ urlpatterns = [
     path('Technician-profile', views.Technician_profile_view,name='Technician-profile'),
     path('edit-Technician-profile', views.edit_Technician_profile_view,name='edit-Technician-profile'),
     path('Technician-salary', views.Technician_salary_view,name='Technician-salary'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

@@ -44,7 +44,7 @@ class TechnicianForm(forms.ModelForm):
         fields=['address','mobile','profile_pic','skill']
 
 class TechnicianSalaryForm(forms.Form):
-    salary=forms.IntegerField();
+    salary=forms.IntegerField()
 
 
 class RequestForm(forms.ModelForm):
