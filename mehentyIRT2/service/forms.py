@@ -4,7 +4,6 @@ from . import models
 # importaion et exporation 
 
 from django import forms
-from django import forms
 from .models import Customer, Technician
 
 class ExportForm(forms.Form):
