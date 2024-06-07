@@ -11,24 +11,23 @@ import os
 from .models import Request
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.core.files.base import ContentFile
 from .forms import CSVUploadForm
 from .models import Customer, Technician
 from django.contrib.auth.models import User
 from django.conf import settings
-import csv
-import os
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.shortcuts import render
 from .forms import CSVUploadForm
 from .models import Customer
 from django.db.models import Count
 from django.shortcuts import render
 from .models import Request, Technician
 
+#=================
+#admin_chart
+#=================
 def admin_chart(request):
     # Data for Requests Status Chart and Requests by Category Chart (existing logic)
     customer_data = Request.objects.filter(customer__isnull=False).values('status').annotate(count=Count('id'))

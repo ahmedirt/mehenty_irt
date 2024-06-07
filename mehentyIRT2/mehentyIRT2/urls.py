@@ -11,6 +11,7 @@ from django.urls import path
 from django.conf.urls.static import static
 
 urlpatterns = [
+    
     path('admin_chart/', views.admin_chart, name='admin_chart'),
     path('admin/', admin.site.urls),
     path('import-customers/', views.import_customers, name='import-customers'),
