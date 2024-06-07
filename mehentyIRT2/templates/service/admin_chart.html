@@ -1,0 +1,147 @@
+{% extends "service/adminbase.html" %}
+
+{% block content %}<div class="wrapper">
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Requests Status Chart:</h3>
+            <div class="chart-container" style="height:50vh; width:120%;">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>Requests by Category Chart:</h3>
+            <div class="chart-container" style="height:50vh; width:120%;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div><div class="row">
+        <!-- Doughnut Chart for Technicians by Category -->
+        <div class="col-md-6">
+            <h3>Technicians by Category (Doughnut Chart):</h3>
+            <div class="chart-container" style="height:50vh; width:120%;">
+                <canvas id="technicianCategoryDoughnutChart"></canvas>
+            </div>
+        </div>
+        <!-- Pie Chart for Technicians by Category -->
+        <div class="col-md-6">
+            <h3>Technicians by Category (Pie Chart):</h3>
+            <div class="chart-container" style="height:50vh; width:120%;">
+                <canvas id="technicianCategoryPieChart"></canvas>
+            </div>
+        </div>
+    </div>  
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('statusChart').getContext('2d');
+        var statusChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ customer_statuses|safe }},
+                datasets: [{
+                    label: 'Customer Requests',
+                    data: {{ customer_counts|safe }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Technician Requests',
+                    data: {{ technician_counts|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        var ctx2 = document.getElementById('categoryChart').getContext('2d');
+        var categoryChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: {{ categories|safe }},
+                datasets: [{
+                    label: 'Requests by Category',
+                    data: {{ category_counts|safe }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });var ctx3 = document.getElementById('technicianCategoryDoughnutChart').getContext('2d');
+        var technicianCategoryDoughnutChart = new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: {{ technician_categories|safe }},
+                datasets: [{
+                    label: 'Technicians by Category (Doughnut Chart)',
+                    data: {{ technician_category_counts|safe }},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        // Add more colors as needed
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        // Add corresponding border colors
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Pie Chart for Technicians by Category
+        var ctx4 = document.getElementById('technicianCategoryPieChart').getContext('2d');
+        var technicianCategoryPieChart = new Chart(ctx4, {
+            type: 'pie',
+            data: {
+                labels: {{ technician_categories|safe }},
+                datasets: [{
+                    label: 'Technicians by Category (Pie Chart)',
+                    data: {{ technician_category_counts|safe }},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        // Add more colors as needed
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        // Add corresponding border colors
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    });
+</script>
+{% endblock %}

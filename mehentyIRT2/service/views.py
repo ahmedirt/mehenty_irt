@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db.models import Q
 import csv
 import os
+from .models import Request
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.files.base import ContentFile
@@ -24,6 +25,40 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from .forms import CSVUploadForm
 from .models import Customer
+from django.db.models import Count
+from django.shortcuts import render
+from .models import Request, Technician
+
+def admin_chart(request):
+    # Data for Requests Status Chart and Requests by Category Chart (existing logic)
+    customer_data = Request.objects.filter(customer__isnull=False).values('status').annotate(count=Count('id'))
+    technician_data = Request.objects.filter(Technician__isnull=False).values('status').annotate(count=Count('id'))
+    category_data = Request.objects.values('category').annotate(count=Count('id'))
+    categories = [item['category'] for item in category_data]
+    category_counts = [item['count'] for item in category_data]
+    customer_statuses = [item['status'] for item in customer_data]
+    customer_counts = [item['count'] for item in customer_data]
+    technician_statuses = [item['status'] for item in technician_data]
+    technician_counts = [item['count'] for item in technician_data]
+
+    # Data for Doughnut and Pie Charts (technicians by category)
+    technician_category_data = Technician.objects.values('skill').annotate(count=Count('id'))
+    technician_categories = [item['skill'] for item in technician_category_data]
+    technician_category_counts = [item['count'] for item in technician_category_data]
+
+    context = {
+        'customer_statuses': customer_statuses,
+        'customer_counts': customer_counts,
+        'technician_statuses': technician_statuses,
+        'technician_counts': technician_counts,
+        'categories': categories,
+        'category_counts': category_counts,
+        'technician_categories': technician_categories,
+        'technician_category_counts': technician_category_counts,
+    }
+    return render(request, 'service/admin_chart.html', context)
+
+
 
 #=================
 #import and export

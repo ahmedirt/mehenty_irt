@@ -9,7 +9,9 @@ from django.contrib.auth.views import LoginView,LogoutView
 from django.urls import path
 #from .views import import_data, export_data
 from django.conf.urls.static import static
+
 urlpatterns = [
+    path('admin_chart/', views.admin_chart, name='admin_chart'),
     path('admin/', admin.site.urls),
     path('import-customers/', views.import_customers, name='import-customers'),
     path('export-customers/', views.export_customers, name='export-customers'),
