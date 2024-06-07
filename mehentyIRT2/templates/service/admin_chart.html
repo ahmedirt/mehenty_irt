@@ -1,6 +1,7 @@
 {% extends "service/adminbase.html" %}
 
-{% block content %}<div class="wrapper">
+{% block content %}
+<div class="wrapper">
     <div class="row">
         <div class="col-md-6">
             <h3>Requests Status Chart:</h3>
@@ -15,7 +16,23 @@
                 <canvas id="categoryChart"></canvas>
             </div>
         </div>
-    </div><div class="row">
+        <div class="row">
+        <div class="col-md-6">
+            <h3>Requests by Category Over Time (Bar Chart):</h3>
+            <div class="chart-container" style="height:50vh; width:100%;">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>Requests by Category Over Time (Line Chart):</h3>
+            <div class="chart-container" style="height:50vh; width:100%;">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="row">
         <!-- Doughnut Chart for Technicians by Category -->
         <div class="col-md-6">
             <h3>Technicians by Category (Doughnut Chart):</h3>
@@ -36,6 +53,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Status Chart
         var ctx = document.getElementById('statusChart').getContext('2d');
         var statusChart = new Chart(ctx, {
             type: 'bar',
@@ -65,6 +83,7 @@
             }
         });
 
+        // Category Chart
         var ctx2 = document.getElementById('categoryChart').getContext('2d');
         var categoryChart = new Chart(ctx2, {
             type: 'bar',
@@ -86,7 +105,10 @@
                     }
                 }
             }
-        });var ctx3 = document.getElementById('technicianCategoryDoughnutChart').getContext('2d');
+        });
+
+        // Doughnut Chart
+        var ctx3 = document.getElementById('technicianCategoryDoughnutChart').getContext('2d');
         var technicianCategoryDoughnutChart = new Chart(ctx3, {
             type: 'doughnut',
             data: {
@@ -114,7 +136,7 @@
             }
         });
 
-        // Pie Chart for Technicians by Category
+        // Pie Chart
         var ctx4 = document.getElementById('technicianCategoryPieChart').getContext('2d');
         var technicianCategoryPieChart = new Chart(ctx4, {
             type: 'pie',
@@ -142,6 +164,64 @@
                 responsive: true
             }
         });
+
+        // Bar Chart
+        var ctx5 = document.getElementById('barChart').getContext('2d');
+        var barChart = new Chart(ctx5, {
+            type: 'bar',
+            data: {
+                labels: {{ months|safe }},
+                datasets: [
+                    {% for category, counts in bar_chart_data.items %}
+                    {
+                        label: '{{ category }}',
+                        data: {{ counts|safe }},
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {% endfor %}
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Line Chart
+        var ctx6 = document.getElementById('lineChart').getContext('2d');
+        var lineChart = new Chart(ctx6, {
+            type: 'line',
+            data: {
+                labels: {{ months|safe }},
+                datasets: [
+                    {% for category, counts in line_chart_data.items %}
+                    {
+                        label: '{{ category }}',
+                        data: {{ counts|safe }},
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    },
+                    {% endfor %}
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     });
 </script>
+
 {% endblock %}

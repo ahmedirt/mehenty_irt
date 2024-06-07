@@ -24,10 +24,11 @@ from .models import Customer
 from django.db.models import Count
 from django.shortcuts import render
 from .models import Request, Technician
+from django.shortcuts import render
+from django.db.models import Count
+from datetime import datetime
+from .models import Request, Technician
 
-#=================
-#admin_chart
-#=================
 def admin_chart(request):
     # Data for Requests Status Chart and Requests by Category Chart (existing logic)
     customer_data = Request.objects.filter(customer__isnull=False).values('status').annotate(count=Count('id'))
@@ -45,6 +46,30 @@ def admin_chart(request):
     technician_categories = [item['skill'] for item in technician_category_data]
     technician_category_counts = [item['count'] for item in technician_category_data]
 
+    # Debugging: Print data to console
+    print("Customer Data:", customer_data)
+    print("Technician Data:", technician_data)
+    print("Category Data:", category_data)
+    print("Technician Category Data:", technician_category_data)
+
+    # Data for Bar Chart and Line Chart
+    bar_chart_data = {}
+    line_chart_data = {}
+    months = [datetime(2024, month, 1).strftime('%B') for month in range(1, 13)]
+    for category in categories:
+        monthly_counts = []
+        monthly_line_counts = []
+        for month in range(1, 13):
+            count = Request.objects.filter(category=category, date__month=month).count()
+            monthly_counts.append(count)
+            monthly_line_counts.append(count)
+        bar_chart_data[category] = monthly_counts
+        line_chart_data[category] = monthly_line_counts
+
+    # Debugging: Print chart data to console
+    print("Bar Chart Data:", bar_chart_data)
+    print("Line Chart Data:", line_chart_data)
+
     context = {
         'customer_statuses': customer_statuses,
         'customer_counts': customer_counts,
@@ -54,10 +79,12 @@ def admin_chart(request):
         'category_counts': category_counts,
         'technician_categories': technician_categories,
         'technician_category_counts': technician_category_counts,
+        'months': months,
+        'bar_chart_data': bar_chart_data,
+        'line_chart_data': line_chart_data,
     }
+    
     return render(request, 'service/admin_chart.html', context)
-
-
 
 #=================
 #import and export
