@@ -92,6 +92,17 @@ urlpatterns = [
     path('Technician-profile', views.Technician_profile_view,name='Technician-profile'),
     path('edit-Technician-profile', views.edit_Technician_profile_view,name='edit-Technician-profile'),
     path('Technician-salary', views.Technician_salary_view,name='Technician-salary'),
+
+
+    path('Technician-feedback', views.Technician_feedback_view,name='Technician-feedback'),
+    path('Technician-attendance', views.Technician_attendance_view,name='Technician-attendance'),
+    path('admin-Technician-attendance', views.admin_Technician_attendance_view,name='admin-Technician-attendance'),
+    path('admin-take-attendance', views.admin_take_attendance_view,name='admin-take-attendance'),
+    path('admin-view-attendance', views.admin_view_attendance_view,name='admin-view-attendance'),
+    path('admin-feedback', views.admin_feedback_view,name='admin-feedback'),
+   
+    path('customer-feedback', views.customer_feedback_view,name='customer-feedback'),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

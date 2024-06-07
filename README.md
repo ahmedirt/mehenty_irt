@@ -67,5 +67,5 @@ py manage.py createsuperuser
 ### Autres fonctionnalités
 - Nous pouvons changer le thème du site web en jour (blanc) et nuit (noir)
 - Si un client est supprimé par l'administrateur, sa demande (Enquête) sera automatiquement supprimée
-## COMMENT EXÉCUTER CE PROJET
+
 
