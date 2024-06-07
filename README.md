@@ -14,13 +14,13 @@
 
 ## CAPTURES D'ÉCRAN
 ### Page d'accueil
-![capture d'écran du tableau de bord](https://raw.githubusercontent.com/ahmedirt/mehenty_irt/main/static/screenshots/home.png)
+![capture d'écran du tableau de bord](mehentyIRT2/static/screenshots/home.png)
 ### Tableau de bord administrateur en thème sombre
 ![capture d'écran du tableau de bord](mehentyIRT2/static/screenshots/admin_dark.png)
 ### Tableau de bord administrateur en thème clair
 ![capture d'écran du tableau de bord](mehentyIRT2/static/screenshots/admin_light.png)
 ### Tableau de bord technicien
-![capture d'écran du tableau de bord](mehentyIRT2/static/screenshots/technician_dashborad.png)
+![capture d'écran du tableau de bord](mehentyIRT2/static/screenshots/technician_dashboard.png)
 ### Tableau de bord client
 ![capture d'écran du tableau de bord](mehentyIRT2/static/screenshots/customer_dashboard.png)
 
